@@ -19,16 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.hbase.async.Bytes.ByteMap;
-import org.jboss.netty.handler.codec.http.HttpMethod;
-import org.jboss.netty.handler.codec.http.HttpResponseStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.stumbleupon.async.Callback;
-import com.stumbleupon.async.Deferred;
-import com.stumbleupon.async.DeferredGroupException;
+import java.util.TimeZone;
 
 import net.opentsdb.core.DataPoints;
 import net.opentsdb.core.IncomingDataPoint;
@@ -39,11 +30,20 @@ import net.opentsdb.core.TSQuery;
 import net.opentsdb.core.TSSubQuery;
 import net.opentsdb.core.Tags;
 import net.opentsdb.meta.Annotation;
-import net.opentsdb.meta.TSMeta;
 import net.opentsdb.meta.TSUIDQuery;
 import net.opentsdb.uid.NoSuchUniqueName;
 import net.opentsdb.uid.UniqueId;
-import net.opentsdb.utils.JSON;
+import net.opentsdb.utils.DateTime;
+
+import org.hbase.async.Bytes.ByteMap;
+import org.jboss.netty.handler.codec.http.HttpMethod;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.stumbleupon.async.Callback;
+import com.stumbleupon.async.Deferred;
+import com.stumbleupon.async.DeferredGroupException;
 
 /**
  * Handles queries for timeseries datapoints. Each request is parsed into a
@@ -383,6 +383,23 @@ final class QueryRpc implements HttpRpc {
       data_query.setMsResolution(true);
     }
     
+    if (query.hasQueryStringParam("tz")) {
+      data_query.setTimezone(query.getQueryStringParam("tz"));
+    }
+    
+    if (query.hasQueryStringParam("use_calendar")) {
+      final String val = query.getQueryStringParam("use_calendar").trim().toUpperCase();
+      final boolean use_calendar;
+      if (val.equals("TRUE")) {
+        use_calendar = true;
+      } else {
+        use_calendar = false;
+      }
+      data_query.setUseCalendar(use_calendar);
+    } else {
+      data_query.setUseCalendar(tsdb.getConfig().use_calendar());
+    }
+
     // handle tsuid queries first
     if (query.hasQueryStringParam("tsuid")) {
       final List<String> tsuids = query.getQueryStringParams("tsuid");     

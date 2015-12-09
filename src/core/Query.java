@@ -66,7 +66,25 @@ public interface Query {
    * @return A strictly positive integer.
    */
   long getEndTime();
-
+  
+  /** 
+   * Sets the timezone to use for aligning intervals based on the calendar.
+   * @param timezone the timezone to use
+   */
+  void setTimezone(String timezone);
+  
+  /** @return the timezone to use for aligning intervals based on the calendar. */
+  String getTimezone();
+  
+  /** 
+   * Sets a flag denoting whether or not to align intervals based on the calendar.
+   * @param use_calendar true, if the intervals should be aligned based on the calendar; false, otherwise
+   */
+  void setUseCalendar(boolean use_calendar);
+  
+  /** @return A flag denoting whether or not to align intervals based on the calendar. */
+  boolean getUseCalendar();
+  
   /**
   * Sets the time series to the query.
   * @param metric The metric to retrieve from the TSDB.

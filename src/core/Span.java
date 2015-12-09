@@ -18,8 +18,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.TimeZone;
 
 import net.opentsdb.meta.Annotation;
+import net.opentsdb.uid.NoSuchUniqueId;
 import net.opentsdb.uid.UniqueId;
 
 import org.hbase.async.Bytes;
@@ -424,13 +426,30 @@ final class Span implements DataPoints {
   }
 
   /**
-   * Package private iterator method to access data while downsampling.
+   * Package private iterator method to access data while downsampling. Preserved for backward
+   * compatibility.
    * @param interval_ms The interval in milli seconds wanted between each data
    * point.
    * @param downsampler The downsampling function to use.
    */
   Downsampler downsampler(final long interval_ms,
                           final Aggregator downsampler) {
-    return new Downsampler(spanIterator(), interval_ms, downsampler);
+    return new Downsampler(spanIterator(), interval_ms, downsampler, null, false);
   }
+
+  /**
+   * Package private iterator method to access data while downsampling.
+   * @param interval_ms The interval in milli seconds wanted between each data
+   * point.
+   * @param downsampler The downsampling function to use.
+   * @param timezone The timezone to use for aligning intervals based on the calendar
+   * @param use_calendar A flag denoting whether or not to align intervals based on the calendar
+   */
+  Downsampler downsampler(final long interval_ms,
+                          final Aggregator downsampler,
+                          final TimeZone timezone,
+                          final boolean use_calendar) {
+    return new Downsampler(spanIterator(), interval_ms, downsampler, timezone, use_calendar);
+  }
+  
 }

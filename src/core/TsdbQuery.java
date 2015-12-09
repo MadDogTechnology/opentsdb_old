@@ -121,6 +121,12 @@ final class TsdbQuery implements Query {
   /** Optional list of TSUIDs to fetch and aggregate instead of a metric */
   private List<String> tsuids;
   
+  /** The timezone to use for aligning intervals based on the calendar */
+  private String timezone;
+
+  /** A flag denoting whether or not to align intervals based on the calendar */
+  private boolean use_calendar;
+  
   /** Constructor. */
   public TsdbQuery(final TSDB tsdb) {
     this.tsdb = tsdb;
@@ -184,6 +190,36 @@ final class TsdbQuery implements Query {
       setEndTime(System.currentTimeMillis());
     }
     return end_time;
+  }
+  
+  /** 
+   * Sets the timezone to use for aligning intervals based on the calendar.
+   * @param timezone the timezone to use
+   */
+  @Override
+  public void setTimezone(String timezone) {
+    this.timezone = timezone;
+  }
+  
+  /** @return the timezone to use for aligning intervals based on the calendar. */
+  @Override
+  public String getTimezone() {
+    return this.timezone;
+  }
+
+  /** 
+   * Sets a flag denoting whether or not to align intervals based on the calendar.
+   * @param use_calendar true, if the intervals should be aligned based on the calendar; false, otherwise
+   */
+  @Override
+  public void setUseCalendar(boolean use_calendar) {
+    this.use_calendar = use_calendar;
+  }
+  
+  /** @return A flag denoting whether or not to align intervals based on the calendar. */
+  @Override
+  public boolean getUseCalendar() {
+    return this.use_calendar;
   }
 
   @Override
@@ -467,7 +503,7 @@ final class TsdbQuery implements Query {
                                               spans.values(),
                                               rate, rate_options,
                                               aggregator,
-                                              sample_interval_ms, downsampler);
+                                              sample_interval_ms, downsampler, timezone, use_calendar);
         return new SpanGroup[] { group };
       }
   
@@ -511,7 +547,7 @@ final class TsdbQuery implements Query {
           thegroup = new SpanGroup(tsdb, getScanStartTimeSeconds(),
                                    getScanEndTimeSeconds(),
                                    null, rate, rate_options, aggregator,
-                                   sample_interval_ms, downsampler);
+                                   sample_interval_ms, downsampler, timezone, use_calendar);
           // Copy the array because we're going to keep `group' and overwrite
           // its contents. So we want the collection to have an immutable copy.
           final byte[] group_copy = new byte[group.length];

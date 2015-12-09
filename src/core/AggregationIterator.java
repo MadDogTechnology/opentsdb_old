@@ -15,12 +15,15 @@ package net.opentsdb.core;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import com.google.common.annotations.VisibleForTesting;
+import java.util.TimeZone;
 
 import net.opentsdb.core.Aggregators.Interpolation;
+import net.opentsdb.utils.DateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Iterator that aggregates multiple spans or time series data and does linear
@@ -193,7 +196,7 @@ final class AggregationIterator implements SeekableView, DataPoint,
 
   /** The index in {@link #values} of the current value being aggregated. */
   private int pos;
-
+  
   /**
    * Creates a new iterator for a {@link SpanGroup}.
    * @param spans Spans in a group.
@@ -221,15 +224,18 @@ final class AggregationIterator implements SeekableView, DataPoint,
                                            final Aggregator downsampler,
                                            final long sample_interval_ms,
                                            final boolean rate,
-                                           final RateOptions rate_options) {
+                                           final RateOptions rate_options,
+                                           final String timezone,
+                                           final boolean use_calendar) {
     final int size = spans.size();
     final SeekableView[] iterators = new SeekableView[size];
+    TimeZone tz = DateTime.timezones.get(timezone);
     for (int i = 0; i < size; i++) {
       SeekableView it;
       if (downsampler == null) {
         it = spans.get(i).spanIterator();
       } else {
-        it = spans.get(i).downsampler(sample_interval_ms, downsampler);
+        it = spans.get(i).downsampler(sample_interval_ms, downsampler, tz, use_calendar);
       }
       if (rate) {
         it = new RateSpan(it, rate_options);
@@ -269,6 +275,7 @@ final class AggregationIterator implements SeekableView, DataPoint,
     final int size = iterators.length;
     timestamps = new long[size * 2];
     values = new long[size * 2];
+    
     // Initialize every Iterator, fetch their first values that fall
     // within our time range.
     int num_empty_spans = 0;

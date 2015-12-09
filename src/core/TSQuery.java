@@ -75,6 +75,9 @@ public final class TSQuery {
   /** Whether or not the user wasn't millisecond resolution */
   private boolean ms_resolution;
   
+  /** A flag denoting whether or not to align intervals based on the calendar */
+  private boolean use_calendar;
+  
   /**
    * Default constructor necessary for POJO de/serialization
    */
@@ -135,6 +138,8 @@ public final class TSQuery {
       final Query query = tsdb.newQuery();
       query.setStartTime(start_time);
       query.setEndTime(end_time);
+      query.setTimezone(this.timezone);
+      query.setUseCalendar(this.use_calendar);
       if (sub.downsampler() != null) {
         query.downsample(sub.downsampleInterval(), sub.downsampler());
       } else if (!ms_resolution) {
@@ -236,6 +241,11 @@ public final class TSQuery {
     return timezone;
   }
 
+  /** @return the flag denoting whether intervals should be aligned based on the calendar */
+  public boolean getUseCalendar() {
+    return use_calendar;
+  }
+  
   /** @return a map of serializer options */
   public Map<String, ArrayList<String>> getOptions() {
     return options;
@@ -293,6 +303,11 @@ public final class TSQuery {
   /** @param timezone an optional timezone for date parsing */
   public void setTimezone(String timezone) {
     this.timezone = timezone;
+  }
+
+  /** @param use_calendar a flag denoting whether or not to align intervals based on the calendar */
+  public void setUseCalendar(boolean use_calendar) {
+    this.use_calendar = use_calendar;
   }
 
   /** @param options a map of options to pass on to the serializer */
