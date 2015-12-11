@@ -190,7 +190,7 @@ public class Downsampler implements SeekableView, DataPoint {
       if (source.hasNext()) {
         has_next_value_from_source = true;
         next_dp = source.next();
-        if (use_calendar && timestamp_start_interval == Long.MAX_VALUE) {
+        if (use_calendar && isCalendarInterval() && timestamp_start_interval == Long.MAX_VALUE) {
           timestamp_start_interval = toStartOfInterval(next_dp.timestamp());
         }
       } else {
