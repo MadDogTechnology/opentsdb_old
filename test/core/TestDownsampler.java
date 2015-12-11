@@ -361,6 +361,63 @@ public class TestDownsampler {
         timestamp = DateTime.toEndOfMonth(timestamp, UTC_TIME_ZONE) + 1;
     }
   }
+  
+  @Test
+  public void testDownsampler_1month_alt() {
+    /*
+    1380600000 -> 2013-10-01T04:00:00Z
+    1383278400 -> 2013-11-01T04:00:00Z
+    1385874000 -> 2013-12-01T05:00:00Z
+    1388552400 -> 2014-01-01T05:00:00Z
+    1391230800 -> 2014-02-01T05:00:00Z
+    1393650000 -> 2014-03-01T05:00:00Z
+    1396324800 -> 2014-04-01T04:00:00Z
+    1398916800 -> 2014-05-01T04:00:00Z
+    1401595200 -> 2014-06-01T04:00:00Z
+    1404187200 -> 2014-07-01T04:00:00Z
+    1406865600 -> 2014-08-01T04:00:00Z
+    1409544000 -> 2014-09-01T04:00:00Z
+    */
+
+    int value = 1;
+    final DataPoint [] data_points = new DataPoint[] {
+      MutableDataPoint.ofLongValue(1380600000000L, value), 
+      MutableDataPoint.ofLongValue(1383278400000L, value), 
+      MutableDataPoint.ofLongValue(1385874000000L, value), 
+      MutableDataPoint.ofLongValue(1388552400000L, value), 
+      MutableDataPoint.ofLongValue(1391230800000L, value), 
+      MutableDataPoint.ofLongValue(1393650000000L, value), 
+      MutableDataPoint.ofLongValue(1396324800000L, value), 
+      MutableDataPoint.ofLongValue(1398916800000L, value), 
+      MutableDataPoint.ofLongValue(1401595200000L, value), 
+      MutableDataPoint.ofLongValue(1404187200000L, value), 
+      MutableDataPoint.ofLongValue(1406865600000L, value), 
+      MutableDataPoint.ofLongValue(1409544000000L, value), 
+    };
+    
+    source = spy(SeekableViewsForTest.fromArray(data_points));
+    
+    downsampler = new Downsampler(source, ONE_MONTH_INTERVAL, SUM, UTC_TIME_ZONE, true);
+    verify(source, never()).next();
+    List<Double> values = Lists.newArrayList();
+    List<Long> timestamps_in_millis = Lists.newArrayList();
+    while (downsampler.hasNext()) {
+      DataPoint dp = downsampler.next();
+      assertFalse(dp.isInteger());
+      values.add(dp.doubleValue());
+      timestamps_in_millis.add(dp.timestamp());
+    }
+    
+    assertEquals(12, values.size());
+    long timestamp = DateTime.toStartOfMonth(data_points[0].timestamp(), UTC_TIME_ZONE);
+    for (int i = 0; i < values.size(); i++) {
+        System.out.println(timestamps_in_millis.get(i).longValue() + ": " + values.get(i));
+        assertEquals(1, values.get(i), 0.0000001);
+        assertEquals(timestamp, timestamps_in_millis.get(i).longValue());
+        timestamp = DateTime.toEndOfMonth(timestamp, UTC_TIME_ZONE) + 1;
+    }
+  }
+  
 
   @Test
   public void testDownsampler_2months() {

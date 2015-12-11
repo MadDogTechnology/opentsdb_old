@@ -143,8 +143,6 @@ public class Downsampler implements SeekableView, DataPoint {
     private final SeekableView source;
     /** The sampling interval in milliseconds. */
     private final long interval_ms;
-    /** The start of the current interval. */
-    private long timestamp_start_interval = Long.MAX_VALUE;
     /** The end of the current interval. */
     private long timestamp_end_interval = Long.MIN_VALUE;
     /** True if the last value was successfully extracted from the source. */
@@ -190,9 +188,6 @@ public class Downsampler implements SeekableView, DataPoint {
       if (source.hasNext()) {
         has_next_value_from_source = true;
         next_dp = source.next();
-        if (use_calendar && isCalendarInterval() && timestamp_start_interval == Long.MAX_VALUE) {
-          timestamp_start_interval = toStartOfInterval(next_dp.timestamp());
-        }
       } else {
         has_next_value_from_source = false;
       }
@@ -208,7 +203,6 @@ public class Downsampler implements SeekableView, DataPoint {
         
         if (use_calendar && isCalendarInterval()) {
           timestamp_end_interval =  toEndOfInterval(next_dp.timestamp());
-          timestamp_start_interval = Long.MAX_VALUE;
         }  else {
           // default timestamp normalization (tsdb v2.1.0)
            timestamp_end_interval = alignTimestamp(next_dp.timestamp()) + 
@@ -244,8 +238,7 @@ public class Downsampler implements SeekableView, DataPoint {
       // a downsample interval as a representative timestamp of it. It also
       // provides the correct context for seek.
       if (use_calendar && isCalendarInterval()) {
-        return timestamp_start_interval != Long.MAX_VALUE ? 
-            timestamp_start_interval : toStartOfInterval(timestamp_end_interval);
+        return toStartOfInterval(timestamp_end_interval);
       }  else {
         return alignTimestamp(timestamp_end_interval - interval_ms);
       }
@@ -278,13 +271,33 @@ public class Downsampler implements SeekableView, DataPoint {
      *  based on the timezone. */
     private long toStartOfInterval(long timestamp) {
       if (interval_ms % ONE_YEAR_INTERVAL == 0) {
-        return toStartOfYear(timestamp, timezone);
+        final long multiplier = interval_ms / ONE_YEAR_INTERVAL;
+        long result = timestamp;
+        for (long i = 0; i < multiplier; i++) {
+          result = toStartOfYear(result, timezone) - 1;
+        }
+        return result + 1;
       } else if (interval_ms % ONE_MONTH_INTERVAL == 0) {
-        return toStartOfMonth(timestamp, timezone);
+        final long multiplier = interval_ms / ONE_MONTH_INTERVAL;
+        long result = timestamp;
+        for (long i = 0; i < multiplier; i++) {
+          result = toStartOfMonth(result, timezone) - 1;
+        }
+        return result + 1;
       } else if (interval_ms % ONE_WEEK_INTERVAL == 0) {
-        return toStartOfWeek(timestamp, timezone);
+        final long multiplier = interval_ms / ONE_WEEK_INTERVAL;
+        long result = timestamp;
+        for (long i = 0; i < multiplier; i++) {
+          result = toStartOfWeek(result, timezone) - 1;
+        }
+        return result + 1;
       } else if (interval_ms % ONE_DAY_INTERVAL == 0) {
-        return toStartOfDay(timestamp, timezone);
+        final long multiplier = interval_ms / ONE_DAY_INTERVAL;
+        long result = timestamp;
+        for (long i = 0; i < multiplier; i++) {
+          result = toStartOfDay(result, timezone) - 1;
+        }
+        return result + 1;
       } else {
         throw new IllegalArgumentException(interval_ms + " does not correspond to a "
             + "an interval that can be aligned to the calendar.");
