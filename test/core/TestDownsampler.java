@@ -411,7 +411,6 @@ public class TestDownsampler {
     assertEquals(12, values.size());
     long timestamp = DateTime.toStartOfMonth(data_points[0].timestamp(), UTC_TIME_ZONE);
     for (int i = 0; i < values.size(); i++) {
-        System.out.println(timestamps_in_millis.get(i).longValue() + ": " + values.get(i));
         assertEquals(1, values.get(i), 0.0000001);
         assertEquals(timestamp, timestamps_in_millis.get(i).longValue());
         timestamp = DateTime.toEndOfMonth(timestamp, UTC_TIME_ZONE) + 1;
