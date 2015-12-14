@@ -590,6 +590,7 @@ public class Config {
     }
     enable_tree_processing = this.getBoolean("tsd.core.tree.enable_processing");
     fix_duplicates = this.getBoolean("tsd.storage.fix_duplicates");
+    use_calendar = this.getBoolean("tsd.query.downsample.use_calendar");
   }
   
   /**
