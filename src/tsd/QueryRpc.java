@@ -160,7 +160,7 @@ final class QueryRpc implements HttpRpc {
 
     try {
       Deferred.groupInOrder(deferreds).addCallback(new QueriesCB())
-        .joinUninterruptibly();
+        .joinUninterruptibly(10000);
     } catch (Exception e) {
       throw new RuntimeException("Shouldn't be here", e);
     }
@@ -331,7 +331,7 @@ final class QueryRpc implements HttpRpc {
       Deferred.group(calls)
         .addCallback(new FinalCB())
         .addErrback(new ErrBack())
-        .joinUninterruptibly();
+        .joinUninterruptibly(30000);
       
     } catch (Exception e) {
       Throwable ex = e;
