@@ -101,7 +101,7 @@ public class Config {
   private boolean use_calendar = false;
 
   /** tsd.query.timeout **/
-  private int queryTimeout = 60000;
+  private int queryTimeout = 30000;
 
   /**
    * The list of properties configured to their defaults or modified by users
