@@ -43,8 +43,23 @@ Start docker
 
 	http://opentsdb.net/docs/build/html/development/development.html
 
-## Demo of problem is solved
+## Demo of Region server recovery problem is solved
 
 	curl "http://localhost:4242/api/query?start=1432094401000&end=1475812799000&m=sum:1y-max:7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay"
 	/opt/hbase/bin/hbase regionserver start
+
+
+## Deploy to Artifactory
+
+* `opentsdb-2.1.3.6_all.deb` to ext-release-local `ext-release-local/net/opentsdb/tsdb/2.1.3.6/opentsdb-2.1.3.6_all.deb`
+
+	deb.distribution trusty
+	deb.component main
+	deb.architecture all
+
+* `tsdb-2.1.3.6.jar` to ext-release-local `ext-release-local/net/opentsdb/tsdb/2.1.3.6/tsdb-2.1.3.6.jar`
+
+    groupId net.opentsdb
+	artifactId tsdb
+	version 2.1.3.6
 
