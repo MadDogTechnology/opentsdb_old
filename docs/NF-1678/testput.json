@@ -1,0 +1,50 @@
+[
+    {
+        "metric": "7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay",
+        "timestamp": 1464062400000,
+        "value": 1000.88,
+        "tags": {
+            "tag": "dummy"
+        }
+    },
+    {
+        "metric": "7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay",
+        "timestamp": 1464062405111,
+        "value": 155.111,
+        "tags": {
+            "tag": "dummy"
+        }
+    },
+    {
+        "metric": "7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay",
+        "timestamp": 1466740800000,
+        "value": 2000.88,
+        "tags": {
+            "tag": "dummy"
+        }
+    },
+    {
+        "metric": "7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay",
+        "timestamp": 1469332800,
+        "value": 3000.88,
+        "tags": {
+            "tag": "dummy"
+        }
+    },
+    {
+        "metric": "7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay",
+        "timestamp": 1472011200222,
+        "value": 4000.88,
+        "tags": {
+            "tag": "dummy"
+        }
+    },
+    {
+        "metric": "7e91c30d-5dd3-44cd-9f5b-fb4dd260defe./Drivers/NiagaraNetwork/dmcSgh/points/BldgMeter/kW_PredNormDegDay",
+        "timestamp": 1474689600111,
+        "value": 5000.88,
+        "tags": {
+            "tag": "dummy"
+        }
+    }
+]
