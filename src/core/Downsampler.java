@@ -334,16 +334,22 @@ public class Downsampler implements SeekableView, DataPoint {
           moveToNextValue();
           if (!run_all) {
             if (specification.useCalendar()) {
-              previous_calendar = DateTime.previousInterval(alignIntervalBoundary(next_dp.timestamp()), 
+              previous_calendar = DateTime.previousInterval(next_dp.timestamp(), 
                   interval, unit, specification.getTimezone());
-              next_calendar = DateTime.previousInterval(alignIntervalBoundary(next_dp.timestamp()), 
+              next_calendar = DateTime.previousInterval(next_dp.timestamp(), 
                   interval, unit, specification.getTimezone());
               if (unit == WEEK_UNIT) {
                 next_calendar.add(DAY_UNIT, interval * WEEK_LENGTH);
               } else {
                 next_calendar.add(unit, interval);
               }
-              timestamp_end_interval = next_calendar.getTimeInMillis();
+
+        	  timestamp_end_interval = next_calendar.getTimeInMillis();
+        	  
+              if (specification.getAlignmentPolicy() == AlignmentPolicy.NEAREST ) {
+            	  timestamp_end_interval += specification.getAlignmentInterval();
+              } 
+              
             } else {
               timestamp_end_interval = alignIntervalBoundary(next_dp.timestamp()) + 
                   specification.getInterval();
@@ -388,7 +394,7 @@ public class Downsampler implements SeekableView, DataPoint {
     private void resetEndOfInterval() {
       if (has_next_value_from_source && !run_all) {
         if (specification.useCalendar()) {
-          while ( alignIntervalBoundary(next_dp.timestamp()) >= timestamp_end_interval) {
+          while ( next_dp.timestamp() >= timestamp_end_interval) {
             if (unit == WEEK_UNIT) {
               previous_calendar.add(DAY_UNIT, interval * WEEK_LENGTH);
               next_calendar.add(DAY_UNIT, interval * WEEK_LENGTH);
@@ -396,7 +402,12 @@ public class Downsampler implements SeekableView, DataPoint {
               previous_calendar.add(unit, interval);
               next_calendar.add(unit, interval);
             }
+            
             timestamp_end_interval = next_calendar.getTimeInMillis();
+            
+            if ( specification.getAlignmentPolicy() == AlignmentPolicy.NEAREST ) {
+            	timestamp_end_interval += specification.getAlignmentInterval();
+            }
           }
         } else {
           timestamp_end_interval = alignIntervalBoundary(next_dp.timestamp()) + 
@@ -444,10 +455,20 @@ public class Downsampler implements SeekableView, DataPoint {
       if (run_all) {
         return timestamp_end_interval;
       } else if (specification.useCalendar()) {
-        return previous_calendar.getTimeInMillis();
+    	  
+    	  if ( specification.getAlignmentPolicy() == AlignmentPolicy.CEILING) {
+    		  return next_calendar.getTimeInMillis();
+    	  } else {
+    		  return previous_calendar.getTimeInMillis();
+    	  }
+    	  
       } else {
-        return alignTimestamp(timestamp_end_interval - 
-            specification.getInterval());
+    	  if ( specification.getAlignmentPolicy() == AlignmentPolicy.CEILING ) {
+    		  return alignTimestamp(timestamp_end_interval);
+    	  } else {
+    		  return alignTimestamp(timestamp_end_interval - 
+    				  specification.getInterval());
+    	  }
       }
     }
 
@@ -490,7 +511,7 @@ public class Downsampler implements SeekableView, DataPoint {
         return has_next_value_from_source;
       }
       return has_next_value_from_source &&
-    		  alignIntervalBoundary(next_dp.timestamp()) < timestamp_end_interval;
+    		  next_dp.timestamp() < timestamp_end_interval;
     }
 
     @Override
